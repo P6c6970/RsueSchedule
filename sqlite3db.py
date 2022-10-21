@@ -46,6 +46,16 @@ class SQLite3DataBase:
         connection.close()
         return a
 
+    def get_teacher(self, teacher, day_week, type_week):
+        connection = self.connect_open()
+        cursor = connection.cursor()
+        self.create(cursor)
+        cursor.execute(f"SELECT group_concat(name_group), day_week, time, lesson, auditorium, teacher, type_lesson, type_week FROM '{self.name_table}' WHERE day_week='{day_week}' AND type_week='{type_week}' AND teacher LIKE '%{teacher}%' GROUP BY lesson, time ORDER BY cast(time as INTEGER)")
+        a = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        return a
+
 
     def clear(self):
         connection = self.connect_open()
