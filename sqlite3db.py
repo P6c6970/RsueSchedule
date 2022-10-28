@@ -30,7 +30,7 @@ class SQLite3DataBase:
         connection = self.connect_open()
         cursor = connection.cursor()
         self.create(cursor)
-        cursor.execute(f"SELECT name_group, day_week, type_week, time, lesson, group_concat(teacher), auditorium, type_lesson FROM '{self.name_table}' WHERE day_week='{day_week}' AND type_week='{type_week}' AND name_group='{group}' GROUP BY time ORDER BY cast(time as INTEGER);")
+        cursor.execute(f"SELECT name_group, day_week, time, lesson, group_concat(teacher), auditorium, type_lesson, type_week FROM '{self.name_table}' WHERE day_week='{day_week}' AND type_week='{type_week}' AND name_group='{group}' GROUP BY time ORDER BY cast(time as INTEGER);")
         a = cursor.fetchall()
         connection.commit()
         connection.close()
@@ -56,6 +56,26 @@ class SQLite3DataBase:
         connection.close()
         return a
 
+    def get_teachers_by_name(self, teacher):
+        connection = self.connect_open()
+        cursor = connection.cursor()
+        self.create(cursor)
+        cursor.execute(f"SELECT DISTINCT teacher FROM '{self.name_table}' WHERE teacher LIKE '%{teacher}%'")
+        a = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        return a
+
+    def get_teacher_full_name(self, teacher, day_week, type_week):
+        connection = self.connect_open()
+        cursor = connection.cursor()
+        self.create(cursor)
+        cursor.execute(
+            f"SELECT group_concat(name_group), day_week, time, lesson, auditorium, teacher, type_lesson, type_week FROM '{self.name_table}' WHERE day_week='{day_week}' AND type_week='{type_week}' AND teacher='{teacher}' GROUP BY lesson, time ORDER BY cast(time as INTEGER)")
+        a = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        return a
 
     def clear(self):
         connection = self.connect_open()

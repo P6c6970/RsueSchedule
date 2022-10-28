@@ -26,12 +26,28 @@ def message_reply(message):
         id = message.chat.id
         from_id = message.from_user.id
         text = message.text
+        print(f"USER {id} printed {text}")
 
         if text != "":
             processing.take_commands(messenger=telegram, id=id, from_id=from_id, text=text)
     except Exception as e:
-        telegram.message(id, e)
+        if e[:19] != "HTTPSConnectionPool":
+            telegram.message(id, e)
 
+@telegram.telegram.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+    try:
+        if call.message:
+            from_id = call.message.chat.id
+            id = call.message.from_user.id
+            text = call.data
+            print(f"USER {from_id} called {text}")
+
+            if text != "":
+                processing.take_commands_call(messenger=telegram, id=id, from_id=from_id, text=text)
+    except Exception as e:
+        if e[:19] != "HTTPSConnectionPool":
+            telegram.message(id, f"Callback {e}")
 
 if __name__ == '__main__':
     app.run(debug=True)
